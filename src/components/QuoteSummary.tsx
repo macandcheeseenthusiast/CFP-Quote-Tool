@@ -81,7 +81,7 @@ export const QuoteSummary: React.FC = () => {
     if (currentPlan === "monthly" || currentPlan === "mortgage") {
       return parseFloat((quoteDetails.estimatedPremium * 0.1679).toFixed(2));
     }
-    return parseFloat((quoteDetails.estimatedPremium * 0.33).toFixed(2));
+    return parseFloat((quoteDetails.estimatedPremium * 0.4012).toFixed(2));
   }, [quoteDetails.estimatedPremium, currentPlan]);
 
   const remainingBalance = useMemo(() => {
@@ -246,14 +246,14 @@ Billing Option: ${
     ? "Mortgage Escrow Billing"
     : "Direct Installment Plan (3-Pay)"
 }
-Mandated Down Payment (${(currentPlan === "monthly" || currentPlan === "mortgage") ? "16.79%" : "33%"}): $${downPayment.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-Remaining Balance (${(currentPlan === "monthly" || currentPlan === "mortgage") ? "83.21%" : "67%"}): $${remainingBalance.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+Mandated Down Payment (${(currentPlan === "monthly" || currentPlan === "mortgage") ? "16.79%" : "40.12%"}): $${downPayment.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+Remaining Balance (${(currentPlan === "monthly" || currentPlan === "mortgage") ? "83.21%" : "59.88%"}): $${remainingBalance.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
 Future Payments: ${
   currentPlan === "monthly"
     ? `11 monthly installments of $${installmentAmount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} (8.45% of premium each) billed monthly. Billed as a total of 12 payments including the 16.79% down payment.`
     : currentPlan === "mortgage"
     ? `Requires starting the monthly plan (16.79% down payment). Once started, future payments (11 monthly installments of $${installmentAmount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} each) are billed out to your mortgage company escrow account so they take over, allowing you to pay it together with your mortgage payments.`
-    : `2 installments of $${installmentAmount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} billed 3 months after (total of 3 payments including the 33% down payment)`
+    : `2 installments of $${installmentAmount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} billed 3 months after (total of 3 payments including the 40.12% down payment)`
 }
 
 *DISCLAIMER: This is an informational prelim estimate, not an insurance binder. Final premiums are subject to CA FAIR Plan underwriting.
@@ -459,7 +459,7 @@ Future Payments: ${
                 Payment Plan & Financing
               </h3>
               <span className="text-[10px] bg-indigo-50 font-bold px-2.5 py-1 rounded text-indigo-600 print:hidden">
-                {(currentPlan === "monthly" || currentPlan === "mortgage") ? "16.79% Down" : "33% Down"}
+                {(currentPlan === "monthly" || currentPlan === "mortgage") ? "16.79% Down" : "40.12% Down"}
               </span>
             </div>
 
@@ -505,7 +505,7 @@ Future Payments: ${
               <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100/80 space-y-3 print:bg-transparent print:border-none print:p-0">
                 <div className="flex justify-between items-center">
                   <span className="text-xs font-semibold text-slate-500">
-                    Required Down Payment ({(currentPlan === "monthly" || currentPlan === "mortgage") ? "16.79%" : "33%"})
+                    Required Down Payment ({(currentPlan === "monthly" || currentPlan === "mortgage") ? "16.79%" : "40.12%"})
                   </span>
                   <span className="text-sm font-extrabold font-mono text-slate-900">
                     ${downPayment.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -514,7 +514,7 @@ Future Payments: ${
                 
                 <div className="flex justify-between items-center border-t border-slate-100 pt-2">
                   <span className="text-xs font-semibold text-slate-500">
-                    Remaining Balance ({(currentPlan === "monthly" || currentPlan === "mortgage") ? "83.21%" : "67%"})
+                    Remaining Balance ({(currentPlan === "monthly" || currentPlan === "mortgage") ? "83.21%" : "59.88%"})
                   </span>
                   <span className="text-xs font-bold font-mono text-slate-700">
                     ${remainingBalance.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -526,7 +526,7 @@ Future Payments: ${
                   
                   {currentPlan === "direct" && (
                     <div className="text-xs font-medium text-slate-600 leading-relaxed">
-                      Divided into <span className="font-bold text-slate-800">2 installments</span> of <span className="font-extrabold font-mono text-indigo-700">${installmentAmount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span> billed <span className="font-bold text-slate-800">3 months after</span>. Billed as a total of 3 payments (including the 33% down payment) over the year.
+                      Divided into <span className="font-bold text-slate-800">2 installments</span> of <span className="font-extrabold font-mono text-indigo-700">${installmentAmount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span> billed <span className="font-bold text-slate-800">3 months after</span>. Billed as a total of 3 payments (including the 40.12% down payment) over the year.
                     </div>
                   )}
 
@@ -548,7 +548,7 @@ Future Payments: ${
                   <div>
                     <p className="text-[9px] font-black uppercase tracking-wider text-slate-400 mb-0.5">Option 1: Direct Installment Plan (3-Pay)</p>
                     <div className="text-xs text-slate-700 leading-relaxed">
-                      Requires <span className="font-semibold text-slate-900">33% down payment</span> of <span className="font-bold font-mono text-slate-900">${parseFloat((quoteDetails.estimatedPremium * 0.33).toFixed(2)).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>. Remaining balance divided into <span className="font-semibold text-slate-900">2 installments</span> of <span className="font-bold font-mono text-slate-900">${parseFloat(((quoteDetails.estimatedPremium - parseFloat((quoteDetails.estimatedPremium * 0.33).toFixed(2))) / 2).toFixed(2)).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span> billed <span className="font-semibold text-slate-900">3 months after</span>.
+                      Requires <span className="font-semibold text-slate-900">40.12% down payment</span> of <span className="font-bold font-mono text-slate-900">${parseFloat((quoteDetails.estimatedPremium * 0.4012).toFixed(2)).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>. Remaining balance divided into <span className="font-semibold text-slate-900">2 installments</span> of <span className="font-bold font-mono text-slate-900">${parseFloat(((quoteDetails.estimatedPremium - parseFloat((quoteDetails.estimatedPremium * 0.4012).toFixed(2))) / 2).toFixed(2)).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span> billed <span className="font-semibold text-slate-900">3 months after</span>.
                     </div>
                   </div>
 
