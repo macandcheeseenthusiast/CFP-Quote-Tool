@@ -1,0 +1,55 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+@layer utilities {
+  /* Hide scrollbars for a clean workspace feel */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+/* Print specific optimizations */
+@media print {
+  body {
+    background-color: white !important;
+    color: black !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    font-family: "Inter", sans-serif !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  /* Make sure background colors and borders look crisp in PDF export */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Ensure inputs have clean transparent borders and black text in print */
+  input {
+    border: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    color: black !important;
+    box-shadow: none !important;
+  }
+
+  /* Hide placeholders when printing */
+  ::placeholder {
+    color: transparent !important;
+  }
+}
+
+

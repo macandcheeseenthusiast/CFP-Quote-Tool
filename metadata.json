@@ -1,0 +1,6 @@
+{
+  "name": "CA FAIR Plan Quote Summary",
+  "description": "An interactive, elegant utility to draft and estimate California FAIR Plan Quotes with automatic limit calculations, custom coverages, and print-ready exporting.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
