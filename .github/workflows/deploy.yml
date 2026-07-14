@@ -2,8 +2,9 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches:
-      - main # Change this to master if your default branch is master
+    branches: ["main"] # Change to "master" if your default branch is named master
+
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -11,8 +12,8 @@ permissions:
   id-token: write
 
 concurrency:
-  group: 'pages'
-  cancel-in-progress: true
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
   deploy:
@@ -23,24 +24,26 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Set up Node.js
+        
+      - name: Set up Node
         uses: actions/setup-node@v4
         with:
-          node-size: 20
-          cache: 'npm'
-
+          node-version: 20
+          
       - name: Install dependencies
-        run: npm ci
-
-      - name: Build Application
+        run: npm install
+        
+      - name: Build App
         run: npm run build
-
-      - name: Upload static files artifact
+        
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+        
+      - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './dist' # Vite outputs production builds here
-
+          path: './dist' # Tells GitHub to deploy the compiled Vite output folder
+          
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
