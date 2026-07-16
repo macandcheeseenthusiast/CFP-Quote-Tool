@@ -5,7 +5,6 @@ import {defineConfig} from 'vite';
 
 export default defineConfig(() => {
   return {
-    // Dynamic base path: Uses your repo path on GitHub Actions, and relative paths locally/AI Studio
     base: process.env.GITHUB_ACTIONS === 'true' ? '/CFP-Quote-Tool/' : './',
     plugins: [react(), tailwindcss()],
     resolve: {
@@ -16,7 +15,6 @@ export default defineConfig(() => {
     server: {
       // HMR is disabled in AI Studio via DISABLE_HMR env var.
       hmr: process.env.DISABLE_HMR !== 'true',
-      // Disable file watching when DISABLE_HMR is true to save CPU during agent edits.
       watch: process.env.DISABLE_HMR === 'true' ? null : {},
     },
   };
