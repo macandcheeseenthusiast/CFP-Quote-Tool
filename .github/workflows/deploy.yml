@@ -2,9 +2,9 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: ["main"] # Change to "master" if your default branch is named master
-
-  workflow_dispatch:
+    branches:
+      - main
+      - master
 
 permissions:
   contents: read
@@ -24,26 +24,44 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        
-      - name: Set up Node
+
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-          
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install bun (if lockfile is bun.lock)
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
       - name: Install dependencies
-        run: npm install
-        
-      - name: Build App
-        run: npm run build
-        
+        run: |
+          if [ -f bun.lock ]; then
+            bun install
+          else
+            npm ci
+          fi
+
+      - name: Build
+        run: |
+          if [ -f bun.lock ]; then
+            bun run build
+          else
+            npm run build
+          fi
+
       - name: Setup Pages
         uses: actions/configure-pages@v4
-        
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './dist' # Tells GitHub to deploy the compiled Vite output folder
-          
+          path: './dist'
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
