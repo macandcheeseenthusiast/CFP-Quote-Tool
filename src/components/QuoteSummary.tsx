@@ -181,7 +181,7 @@ export const QuoteSummary: React.FC = () => {
     setCoverages([
       { id: "dwelling", description: "Dwelling Coverage (Coverage A)", limit: 650000, deductible: "$2,500" },
       { id: "contents", description: "Personal Property / Contents (Coverage C)", limit: 150000, deductible: "Included" },
-      { id: "rental", description: "Fair Rental Value (Coverage D)", limit: 65000, deductible: "Included" },
+      { id: "rental", description: "Fair Rental Value (Coverage D)", limit: 65005, deductible: "Included" },
       { id: "ordinance", description: "Ordinance or Law Coverage", limit: 32500, deductible: "Included" },
       { id: "debris", description: "Debris Removal Coverage", limit: 25000, deductible: "Included" },
       { id: "custom-demo-1", description: "Vandalism & Malicious Mischief Endorsement", limit: 5000, deductible: "$500", isCustom: true }
