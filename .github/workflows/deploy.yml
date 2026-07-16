@@ -4,13 +4,16 @@ on:
   push:
     branches:
       - main
-      - master
+      - master # Triggers on push to either main or master
 
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
   pages: write
   id-token: write
 
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
 concurrency:
   group: "pages"
   cancel-in-progress: false
@@ -29,7 +32,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
 
       - name: Install bun (if lockfile is bun.lock)
         uses: oven-sh/setup-bun@v1
@@ -40,8 +42,10 @@ jobs:
         run: |
           if [ -f bun.lock ]; then
             bun install
-          else
+          elif [ -f package-lock.json ]; then
             npm ci
+          else
+            npm install
           fi
 
       - name: Build
@@ -58,6 +62,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
+          # This uploads the built static site from Vite's output directory
           path: './dist'
 
       - name: Deploy to GitHub Pages
