@@ -22,3 +22,12 @@ export interface QuoteDetails {
   estimatedPremium: number;
   paymentPlan?: "direct" | "mortgage" | "monthly";
 }
+
+export interface Quote {
+  id: string;
+  tabName: string;
+  details: QuoteDetails;
+  coverages: CoverageItem[];
+  endorsements: Endorsement[];
+}
+

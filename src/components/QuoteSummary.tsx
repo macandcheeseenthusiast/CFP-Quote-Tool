@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from "react";
+import { motion, AnimatePresence } from "motion/react";
 import { 
   Plus, 
   Trash2, 
@@ -19,7 +20,7 @@ import {
   MapPin,
   ClipboardList
 } from "lucide-react";
-import { CoverageItem, Endorsement, QuoteDetails } from "../types";
+import { CoverageItem, Endorsement, QuoteDetails, Quote } from "../types";
 import { CurrencyInput } from "./CurrencyInput";
 import { useLocalStorageState } from "../hooks/useLocalStorageState";
 
@@ -49,12 +50,63 @@ const INITIAL_QUOTE_DETAILS: QuoteDetails = {
   paymentPlan: "direct",
 };
 
+const getInitialQuotes = (): Quote[] => {
+  try {
+    const v2 = window.localStorage.getItem("cfp_quotes_v3");
+    if (v2) return JSON.parse(v2);
+
+    const legacyDetailsStr = window.localStorage.getItem("cfp_quote_details");
+    const legacyCoveragesStr = window.localStorage.getItem("cfp_coverages");
+    const legacyEndorsementsStr = window.localStorage.getItem("cfp_endorsements");
+
+    if (legacyDetailsStr || legacyCoveragesStr || legacyEndorsementsStr) {
+      const details = legacyDetailsStr ? JSON.parse(legacyDetailsStr) : INITIAL_QUOTE_DETAILS;
+      const coverages = legacyCoveragesStr ? JSON.parse(legacyCoveragesStr) : DEFAULT_COVERAGES;
+      const endorsements = legacyEndorsementsStr ? JSON.parse(legacyEndorsementsStr) : DEFAULT_ENDORSEMENTS;
+
+      return [
+        {
+          id: "quote-1",
+          tabName: details.applicantName ? `Quote - ${details.applicantName}` : "Quote 1",
+          details,
+          coverages,
+          endorsements,
+        }
+      ];
+    }
+  } catch (e) {
+    console.error("Migration error", e);
+  }
+  return [
+    {
+      id: "quote-1",
+      tabName: "Quote 1",
+      details: INITIAL_QUOTE_DETAILS,
+      coverages: DEFAULT_COVERAGES,
+      endorsements: DEFAULT_ENDORSEMENTS,
+    }
+  ];
+};
+
 export const QuoteSummary: React.FC = () => {
-  const [quoteDetails, setQuoteDetails] = useLocalStorageState<QuoteDetails>("cfp_quote_details", INITIAL_QUOTE_DETAILS);
-  const [coverages, setCoverages] = useLocalStorageState<CoverageItem[]>("cfp_coverages", DEFAULT_COVERAGES);
-  const [endorsements, setEndorsements] = useLocalStorageState<Endorsement[]>("cfp_endorsements", DEFAULT_ENDORSEMENTS);
+  const [quotes, setQuotes] = useLocalStorageState<Quote[]>("cfp_quotes_v3", getInitialQuotes());
+  const [activeQuoteId, setActiveQuoteId] = useLocalStorageState<string>("cfp_active_quote_id", "quote-1");
   const [copied, setCopied] = useState(false);
   const [currentTime, setCurrentTime] = useState("");
+
+  const activeQuote = useMemo(() => {
+    return quotes.find((q) => q.id === activeQuoteId) || quotes[0] || {
+      id: "quote-1",
+      tabName: "Quote 1",
+      details: INITIAL_QUOTE_DETAILS,
+      coverages: DEFAULT_COVERAGES,
+      endorsements: DEFAULT_ENDORSEMENTS,
+    };
+  }, [quotes, activeQuoteId]);
+
+  const quoteDetails = activeQuote.details;
+  const coverages = activeQuote.coverages;
+  const endorsements = activeQuote.endorsements;
 
   // Live timer for status bar
   useEffect(() => {
@@ -95,30 +147,53 @@ export const QuoteSummary: React.FC = () => {
     return parseFloat((remainingBalance / 2).toFixed(2));
   }, [quoteDetails.estimatedPremium, remainingBalance, currentPlan]);
 
+  const updateActiveQuote = (updater: (quote: Quote) => Quote) => {
+    setQuotes((prev) =>
+      prev.map((q) => (q.id === activeQuote.id ? updater(q) : q))
+    );
+  };
+
   // Update a detail field
   const handleDetailChange = (key: keyof QuoteDetails, value: string | number | boolean) => {
-    setQuoteDetails((prev) => ({ ...prev, [key]: value }));
+    updateActiveQuote((q) => {
+      let updatedTabName = q.tabName;
+      if (key === "applicantName" && typeof value === "string") {
+        if (value.trim()) {
+          updatedTabName = `Quote - ${value.trim()}`;
+        } else {
+          updatedTabName = "Quote 1";
+        }
+      }
+      return {
+        ...q,
+        details: { ...q.details, [key]: value },
+        tabName: updatedTabName
+      };
+    });
   };
 
   // Update coverage limit
   const handleLimitChange = (id: string, newLimit: number) => {
-    setCoverages((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, limit: newLimit } : item))
-    );
+    updateActiveQuote((q) => ({
+      ...q,
+      coverages: q.coverages.map((item) => (item.id === id ? { ...item, limit: newLimit } : item)),
+    }));
   };
 
   // Update coverage deductible
   const handleDeductibleChange = (id: string, newDeductible: string) => {
-    setCoverages((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, deductible: newDeductible } : item))
-    );
+    updateActiveQuote((q) => ({
+      ...q,
+      coverages: q.coverages.map((item) => (item.id === id ? { ...item, deductible: newDeductible } : item)),
+    }));
   };
 
   // Update coverage description
   const handleDescriptionChange = (id: string, newDescription: string) => {
-    setCoverages((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, description: newDescription } : item))
-    );
+    updateActiveQuote((q) => ({
+      ...q,
+      coverages: q.coverages.map((item) => (item.id === id ? { ...item, description: newDescription } : item)),
+    }));
   };
 
   // Add custom coverage row
@@ -131,67 +206,143 @@ export const QuoteSummary: React.FC = () => {
       deductible: "Included",
       isCustom: true,
     };
-    setCoverages((prev) => [...prev, newItem]);
+    updateActiveQuote((q) => ({
+      ...q,
+      coverages: [...q.coverages, newItem],
+    }));
   };
 
   // Delete custom coverage row
   const deleteCoverage = (id: string) => {
-    setCoverages((prev) => prev.filter((item) => item.id !== id));
+    updateActiveQuote((q) => ({
+      ...q,
+      coverages: q.coverages.filter((item) => item.id !== id),
+    }));
   };
 
   // Toggle endorsement checkbox
   const toggleEndorsement = (id: string) => {
-    setEndorsements((prev) =>
-      prev.map((e) => (e.id === id ? { ...e, checked: !e.checked } : e))
-    );
+    updateActiveQuote((q) => ({
+      ...q,
+      endorsements: q.endorsements.map((e) => (e.id === id ? { ...e, checked: !e.checked } : e)),
+    }));
   };
 
   // Reset to default blank state for high utility
   const handleClearForm = () => {
-    setQuoteDetails({
-      preparedBy: "",
-      quoteNumber: `CFP-${Math.floor(100000 + Math.random() * 900000)}`,
-      status: "Draft",
-      applicantName: "",
-      propertyAddress: "",
-      estimatedPremium: 0,
-      paymentPlan: "direct",
-    });
-    setCoverages([
-      { id: "dwelling", description: "Dwelling Coverage (Coverage A)", limit: 0, deductible: "$1,000" },
-      { id: "contents", description: "Personal Property / Contents (Coverage C)", limit: 0, deductible: "Included" },
-      { id: "rental", description: "Fair Rental Value (Coverage D)", limit: 0, deductible: "Included" },
-      { id: "ordinance", description: "Ordinance or Law Coverage", limit: 0, deductible: "Included" },
-      { id: "debris", description: "Debris Removal Coverage", limit: 0, deductible: "Included" },
-    ]);
-    setEndorsements(DEFAULT_ENDORSEMENTS.map(e => ({ ...e, checked: false })));
+    updateActiveQuote((q) => ({
+      ...q,
+      details: {
+        preparedBy: "",
+        quoteNumber: `CFP-${Math.floor(100000 + Math.random() * 900000)}`,
+        status: "Draft",
+        applicantName: "",
+        propertyAddress: "",
+        estimatedPremium: 0,
+        paymentPlan: "direct",
+      },
+      coverages: [
+        { id: "dwelling", description: "Dwelling Coverage (Coverage A)", limit: 0, deductible: "$1,000" },
+        { id: "contents", description: "Personal Property / Contents (Coverage C)", limit: 0, deductible: "Included" },
+        { id: "rental", description: "Fair Rental Value (Coverage D)", limit: 0, deductible: "Included" },
+        { id: "ordinance", description: "Ordinance or Law Coverage", limit: 0, deductible: "Included" },
+        { id: "debris", description: "Debris Removal Coverage", limit: 0, deductible: "Included" },
+      ],
+      endorsements: DEFAULT_ENDORSEMENTS.map((e) => ({ ...e, checked: false })),
+    }));
   };
 
   // Load standard California high-risk zone demo scenario
   const handleLoadDemo = () => {
-    setQuoteDetails({
-      preparedBy: "Alexis Cozzi",
-      quoteNumber: "CFP-48209-A",
-      status: "Ready for Signature",
-      applicantName: "Robert & Linda Harrison",
-      propertyAddress: "842 Whispering Pines Way, Lake Arrowhead, CA 92352",
-      estimatedPremium: 4890,
-      paymentPlan: "mortgage",
-    });
-    setCoverages([
-      { id: "dwelling", description: "Dwelling Coverage (Coverage A)", limit: 650000, deductible: "$2,500" },
-      { id: "contents", description: "Personal Property / Contents (Coverage C)", limit: 150000, deductible: "Included" },
-      { id: "rental", description: "Fair Rental Value (Coverage D)", limit: 65000, deductible: "Included" },
-      { id: "ordinance", description: "Ordinance or Law Coverage", limit: 32500, deductible: "Included" },
-      { id: "debris", description: "Debris Removal Coverage", limit: 25000, deductible: "Included" },
-      { id: "custom-demo-1", description: "Vandalism & Malicious Mischief Endorsement", limit: 5000, deductible: "$500", isCustom: true }
-    ]);
-    setEndorsements([
-      { id: "replacement-dwelling", name: "Dwelling Replacement Cost Coverages", checked: true },
-      { id: "replacement-contents", name: "Personal Property Replacement Cost", checked: true },
-      { id: "inflation-guard", name: "Inflation Guard Endorsement", checked: true },
-      { id: "extended-dwelling", name: "Extended Dwelling Coverage (25%)", checked: true },
-    ]);
+    updateActiveQuote((q) => ({
+      ...q,
+      tabName: "Demo - Harrison",
+      details: {
+        preparedBy: "Alexis Cozzi",
+        quoteNumber: "CFP-48209-A",
+        status: "Ready for Signature",
+        applicantName: "Robert & Linda Harrison",
+        propertyAddress: "842 Whispering Pines Way, Lake Arrowhead, CA 92352",
+        estimatedPremium: 4890,
+        paymentPlan: "mortgage",
+      },
+      coverages: [
+        { id: "dwelling", description: "Dwelling Coverage (Coverage A)", limit: 650000, deductible: "$2,500" },
+        { id: "contents", description: "Personal Property / Contents (Coverage C)", limit: 150000, deductible: "Included" },
+        { id: "rental", description: "Fair Rental Value (Coverage D)", limit: 65000, deductible: "Included" },
+        { id: "ordinance", description: "Ordinance or Law Coverage", limit: 32500, deductible: "Included" },
+        { id: "debris", description: "Debris Removal Coverage", limit: 25000, deductible: "Included" },
+        { id: "custom-demo-1", description: "Vandalism & Malicious Mischief Endorsement", limit: 5000, deductible: "$500", isCustom: true }
+      ],
+      endorsements: [
+        { id: "replacement-dwelling", name: "Dwelling Replacement Cost Coverages", checked: true },
+        { id: "replacement-contents", name: "Personal Property Replacement Cost", checked: true },
+        { id: "inflation-guard", name: "Inflation Guard Endorsement", checked: true },
+        { id: "extended-dwelling", name: "Extended Dwelling Coverage (25%)", checked: true },
+      ],
+    }));
+  };
+
+  // Add a new blank quote
+  const createNewQuote = () => {
+    const newId = `quote-${Date.now()}`;
+    const newQuote: Quote = {
+      id: newId,
+      tabName: `Quote ${quotes.length + 1}`,
+      details: {
+        preparedBy: activeQuote.details.preparedBy || "Alexis Cozzi",
+        quoteNumber: `CFP-${Math.floor(100000 + Math.random() * 900000)}`,
+        status: "Draft",
+        applicantName: "",
+        propertyAddress: "",
+        estimatedPremium: 0,
+        paymentPlan: "direct",
+      },
+      coverages: DEFAULT_COVERAGES.map((c) => ({ ...c, limit: 0 })),
+      endorsements: DEFAULT_ENDORSEMENTS.map((e) => ({ ...e, checked: false })),
+    };
+    setQuotes((prev) => [...prev, newQuote]);
+    setActiveQuoteId(newId);
+  };
+
+  // Duplicate an existing quote
+  const duplicateQuote = (quoteToCopy: Quote) => {
+    const newId = `quote-${Date.now()}`;
+    const newQuote: Quote = {
+      id: newId,
+      tabName: `${quoteToCopy.tabName} (Copy)`,
+      details: {
+        ...quoteToCopy.details,
+        quoteNumber: `CFP-${Math.floor(100000 + Math.random() * 900000)}`,
+      },
+      coverages: quoteToCopy.coverages.map((c) => ({ ...c })),
+      endorsements: quoteToCopy.endorsements.map((e) => ({ ...e })),
+    };
+    setQuotes((prev) => [...prev, newQuote]);
+    setActiveQuoteId(newId);
+  };
+
+  // Delete a quote
+  const deleteQuote = (idToDelete: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (quotes.length <= 1) {
+      alert("You must keep at least one quote.");
+      return;
+    }
+    
+    if (activeQuote.id === idToDelete) {
+      const remaining = quotes.filter((q) => q.id !== idToDelete);
+      setActiveQuoteId(remaining[0].id);
+    }
+    
+    setQuotes((prev) => prev.filter((q) => q.id !== idToDelete));
+  };
+
+  // Rename a quote's tab specifically
+  const renameQuoteTab = (id: string, newName: string) => {
+    setQuotes((prev) =>
+      prev.map((q) => (q.id === id ? { ...q, tabName: newName } : q))
+    );
   };
 
   // Helper to quickly copy an email-ready quote summary to the clipboard
@@ -268,6 +419,99 @@ Future Payments: ${
   return (
     <div className="min-h-screen bg-[#F8FAFC] py-8 px-4 sm:px-6 lg:px-8 font-sans no-scrollbar">
       <div className="max-w-7xl mx-auto space-y-6">
+        
+        {/* Active Quotes Workspace Tabs (Hidden on Print) */}
+        <div className="flex flex-col gap-3 bg-white border border-slate-200 rounded-3xl p-5 shadow-sm no-print">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] font-extrabold uppercase tracking-widest text-indigo-950">
+                Active Quote Worksheets
+              </span>
+              <span className="text-xs bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full font-bold font-mono">
+                {quotes.length}
+              </span>
+            </div>
+            <div className="text-[10px] text-slate-400">
+              💡 <span className="font-medium text-slate-500">Pro-tip:</span> Type in the active tab to rename it • Hover tabs to duplicate or delete
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-2.5 items-center">
+            <AnimatePresence mode="popLayout">
+              {quotes.map((q) => {
+                const isActive = q.id === activeQuote.id;
+                return (
+                  <motion.div
+                    key={q.id}
+                    layoutId={`tab-${q.id}`}
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                    onClick={() => setActiveQuoteId(q.id)}
+                    className={`group relative flex items-center gap-2.5 px-4 py-2.5 rounded-2xl border text-xs font-extrabold cursor-pointer transition-all select-none ${
+                      isActive
+                        ? "bg-[#0F172A] text-white border-[#0F172A] shadow-md shadow-slate-900/10"
+                        : "bg-slate-50/50 text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+                    }`}
+                  >
+                    <FileText className={`w-3.5 h-3.5 ${isActive ? "text-indigo-400" : "text-slate-400"}`} />
+                    
+                    {isActive ? (
+                      <input
+                        type="text"
+                        value={q.tabName}
+                        onChange={(e) => renameQuoteTab(q.id, e.target.value)}
+                        onClick={(e) => e.stopPropagation()} // Prevent resetting active tab
+                        className="bg-transparent text-white font-extrabold border-none outline-none focus:ring-0 p-0 w-28 text-xs focus:bg-slate-800/50 px-1 rounded"
+                        placeholder="Untitled Quote"
+                      />
+                    ) : (
+                      <span className="truncate max-w-[120px]">{q.tabName || "Untitled Quote"}</span>
+                    )}
+
+                    {/* Action buttons inside tab */}
+                    <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity pl-1">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          duplicateQuote(q);
+                        }}
+                        title="Duplicate Quote Workspace"
+                        className="p-1 rounded hover:bg-white/10 text-slate-400 hover:text-white transition-colors cursor-pointer"
+                      >
+                        <Copy className="w-3 h-3" />
+                      </button>
+                      {quotes.length > 1 && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deleteQuote(q.id, e);
+                          }}
+                          title="Delete Quote Workspace"
+                          className="p-1 rounded hover:bg-white/10 text-slate-400 hover:text-red-400 transition-colors cursor-pointer"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      )}
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
+
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={createNewQuote}
+              className="flex items-center gap-1.5 px-4 py-2.5 rounded-2xl border border-dashed border-slate-300 bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-700 hover:border-slate-400 text-xs font-bold cursor-pointer transition-all"
+              title="Create New Blank Quote Worksheet"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Add Quote Worksheet</span>
+            </motion.button>
+          </div>
+        </div>
         
         {/* Interactive Workspace Actions Panel (Hidden on Print) */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-white border border-slate-200 rounded-3xl p-5 shadow-sm no-print">
