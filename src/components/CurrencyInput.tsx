@@ -7,6 +7,7 @@ interface CurrencyInputProps {
   placeholder?: string;
   className?: string;
   bold?: boolean;
+  variant?: "standard" | "hero";
 }
 
 export const CurrencyInput: React.FC<CurrencyInputProps> = ({
@@ -16,6 +17,7 @@ export const CurrencyInput: React.FC<CurrencyInputProps> = ({
   placeholder = "$0.00",
   className = "",
   bold = false,
+  variant = "standard",
 }) => {
   const [isFocused, setIsFocused] = useState(false);
   const [inputValue, setInputValue] = useState("");
@@ -74,18 +76,29 @@ export const CurrencyInput: React.FC<CurrencyInputProps> = ({
     }
   };
 
-  return (
-    <input
-      id={id}
-      type="text"
-      value={inputValue}
-      onChange={handleChange}
-      onFocus={handleFocus}
-      onBlur={handleBlur}
-      placeholder={placeholder}
-      className={`w-full bg-transparent px-2 py-1 rounded transition-all duration-150 focus:outline-none focus:bg-white focus:ring-1 focus:ring-blue-500 border border-transparent hover:border-gray-300 md:text-sm ${
+  const inputClass = variant === "hero"
+    ? `w-32 bg-transparent text-indigo-300 print:text-indigo-950 font-mono font-bold text-lg border border-transparent hover:border-slate-700/50 focus:border-indigo-400 focus:outline-none px-1 py-0.5 rounded transition-all text-center ${className}`
+    : `w-full bg-transparent px-2 py-1 rounded transition-all duration-150 focus:outline-none focus:bg-white focus:ring-1 focus:ring-blue-500 border border-transparent hover:border-gray-300 md:text-sm ${
         bold ? "font-bold text-gray-900" : "text-gray-700"
-      } ${className}`}
-    />
+      } ${className}`;
+
+  return (
+    <>
+      <input
+        id={id}
+        type="text"
+        value={inputValue}
+        onChange={handleChange}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+        placeholder={placeholder}
+        className={`${inputClass} print:hidden`}
+      />
+      <span className={`hidden print:inline font-mono ${
+        variant === "hero" ? "text-indigo-950 font-bold text-lg" : bold ? "font-bold text-slate-900" : "text-slate-800"
+      } ${className}`}>
+        {inputValue || placeholder}
+      </span>
+    </>
   );
 };

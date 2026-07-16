@@ -306,16 +306,20 @@ Future Payments: ${
         </div>
 
         {/* Printable/Official Document Header (Only visible when printing) */}
-        <div className="hidden print:flex flex-col border-b-2 border-slate-900 pb-4 mb-6">
-          <div className="flex justify-between items-start">
+        <div className="hidden print:flex flex-row justify-between items-center border-b-2 border-slate-900 pb-5 mb-6">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 bg-indigo-950 rounded-xl flex items-center justify-center text-white font-extrabold text-lg">
+              CFP
+            </div>
             <div>
-              <span className="text-xs font-bold tracking-wider text-indigo-900 uppercase">California FAIR Plan Broker Appraisal Summary</span>
-              <h1 className="text-2xl font-black text-slate-900">QUOTE SUMMATION REPORT</h1>
+              <span className="text-[10px] font-bold tracking-widest text-indigo-900 uppercase block">California FAIR Plan Premium Estimate</span>
+              <h1 className="text-2xl font-black text-slate-900 tracking-tight">PROPERTY VALUATION & QUOTE ESTIMATE</h1>
             </div>
-            <div className="text-right text-xs text-slate-500">
-              <div>Broker Portal Reference: <span className="font-semibold">{quoteDetails.quoteNumber}</span></div>
-              <div>Generated: {new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</div>
-            </div>
+          </div>
+          <div className="text-right text-[10px] text-slate-500 space-y-0.5">
+            <div><span className="font-semibold text-slate-700">Estimate Reference:</span> <span className="font-mono font-bold text-slate-900">{quoteDetails.quoteNumber}</span></div>
+            <div><span className="font-semibold text-slate-700">Date Generated:</span> <span className="font-bold text-slate-900">{new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</span></div>
+            <div><span className="font-semibold text-slate-700">Valid Through:</span> <span className="font-bold text-slate-900">{new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })} (30 Days)</span></div>
           </div>
         </div>
 
@@ -323,10 +327,10 @@ Future Payments: ${
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 print:block print:space-y-6">
 
           {/* 1. Header & Title Card (Span 2) */}
-          <div className="lg:col-span-2 bg-white border border-slate-200 rounded-3xl p-6 flex flex-col justify-between shadow-sm hover:shadow-md transition-all print:border-none print:shadow-none print:p-0">
+          <div className="lg:col-span-2 bg-white border border-slate-200 rounded-3xl p-6 flex flex-col justify-between shadow-sm hover:shadow-md transition-all no-print">
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-full print:border print:border-indigo-100">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-full">
                   California FAIR Plan
                 </span>
               </div>
@@ -334,27 +338,24 @@ Future Payments: ${
                 <h1 className="text-3xl font-black text-slate-900 tracking-tight leading-none">
                   CFP Quote Tool
                 </h1>
-                <p className="text-sm text-slate-500 mt-2 leading-relaxed">
-                  Draft and estimate California FAIR Plan Quotes with automatic limit calculations, custom coverages, and print-ready exporting.
-                </p>
               </div>
             </div>
-            <div className="mt-6 pt-4 border-t border-slate-100 flex items-center gap-3 text-xs text-slate-400 no-print">
+            <div className="mt-6 pt-4 border-t border-slate-100 flex items-center gap-3 text-xs text-slate-400">
               <Clock className="w-4 h-4 text-slate-400" />
               <span>Session local time updated dynamically</span>
             </div>
           </div>
 
           {/* 2. Hero Results Card - Dark Slate (Span 2) */}
-          <div className="lg:col-span-2 bg-[#0F172A] text-white rounded-3xl p-6 flex flex-col justify-between shadow-xl shadow-slate-900/15 relative overflow-hidden border border-slate-800 print:bg-white print:text-slate-900 print:border-2 print:border-slate-300 print:p-5 print:shadow-none">
+          <div className="lg:col-span-2 bg-[#0F172A] text-white rounded-3xl p-6 flex flex-col justify-between shadow-xl shadow-slate-900/15 relative overflow-hidden border border-slate-800 print:bg-slate-50 print:text-slate-900 print:border print:border-slate-300 print:p-5 print:shadow-none print:break-inside-avoid">
             {/* Background design elements (hidden on print) */}
             <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl -mr-6 -mt-6 no-print"></div>
             
             <div className="flex justify-between items-start relative z-10">
-              <span className="text-indigo-400 print:text-indigo-800 font-bold tracking-widest text-[10px] uppercase">
+              <span className="text-indigo-400 print:text-indigo-900 font-bold tracking-widest text-[10px] uppercase">
                 Calculated Premium & Limits
               </span>
-              <ShieldCheck className="h-6 w-6 text-indigo-400 opacity-50 print:text-indigo-800" />
+              <ShieldCheck className="h-6 w-6 text-indigo-400 opacity-50 print:text-indigo-900" />
             </div>
 
             <div className="my-6 space-y-4 relative z-10 text-center">
@@ -368,16 +369,11 @@ Future Payments: ${
               <div className="flex items-center justify-center gap-3 bg-white/5 border border-white/10 rounded-2xl py-2 px-4 max-w-sm mx-auto print:bg-slate-50 print:border-slate-200">
                 <span className="text-xs text-slate-400 font-medium">Estimated Premium:</span>
                 <div className="flex items-center text-indigo-300 print:text-indigo-900 font-mono font-bold text-lg">
-                  <span>$</span>
-                  <input
-                    type="number"
-                    value={quoteDetails.estimatedPremium === 0 ? "" : quoteDetails.estimatedPremium}
-                    onChange={(e) => {
-                      const val = e.target.value === "" ? 0 : parseFloat(e.target.value);
-                      handleDetailChange("estimatedPremium", val);
-                    }}
-                    placeholder="0.00"
-                    className="w-20 bg-transparent text-indigo-300 print:text-indigo-950 border-none outline-none font-bold placeholder-slate-600 focus:ring-0 px-1 py-0"
+                  <CurrencyInput
+                    value={quoteDetails.estimatedPremium}
+                    onChange={(val) => handleDetailChange("estimatedPremium", val)}
+                    variant="hero"
+                    placeholder="$0.00"
                   />
                 </div>
               </div>
@@ -385,74 +381,79 @@ Future Payments: ${
           </div>
 
           {/* 3. Administrative / Applicant Card (Span 2) */}
-          <div className="lg:col-span-2 bg-white border border-slate-200 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all print:border-none print:shadow-none print:p-0">
+          <div className="lg:col-span-2 bg-white border border-slate-200 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all print:border-none print:shadow-none print:p-0 print:break-inside-avoid">
             <h3 className="text-xs font-extrabold uppercase tracking-widest text-slate-400 flex items-center gap-1.5 mb-4">
               <ClipboardList className="w-4 h-4 text-indigo-500" />
-              Administrative Dossier
+              Account & Property Details
             </h3>
             
             <div className="space-y-4 text-sm">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="bg-slate-50 rounded-2xl p-3 border border-slate-100 flex flex-col justify-between print:bg-transparent print:border-b print:rounded-none">
-                  <span className="text-[9px] font-extrabold uppercase tracking-wider text-slate-400">Broker Name</span>
+                <div className="bg-slate-50 rounded-2xl p-3 border border-slate-100 flex flex-col justify-between print:bg-transparent print:border-b print:border-slate-200 print:rounded-none print:p-1">
+                  <span className="text-[9px] font-extrabold uppercase tracking-wider text-slate-400">Prepared By (Agent/Broker)</span>
                   <input
                     type="text"
                     value={quoteDetails.preparedBy}
                     onChange={(e) => handleDetailChange("preparedBy", e.target.value)}
                     placeholder="Alexis Cozzi"
-                    className="w-full bg-transparent font-bold text-slate-800 focus:outline-none p-0.5 border-none"
+                    className="w-full bg-transparent font-bold text-slate-800 focus:outline-none p-0.5 border-none no-print"
                   />
+                  <span className="hidden print:block font-bold text-slate-800 text-xs mt-0.5">{quoteDetails.preparedBy || "Alexis Cozzi"}</span>
                 </div>
-                <div className="bg-slate-50 rounded-2xl p-3 border border-slate-100 flex flex-col justify-between print:bg-transparent print:border-b print:rounded-none">
-                  <span className="text-[9px] font-extrabold uppercase tracking-wider text-slate-400">Quote/Policy ID</span>
+                <div className="bg-slate-50 rounded-2xl p-3 border border-slate-100 flex flex-col justify-between print:bg-transparent print:border-b print:border-slate-200 print:rounded-none print:p-1">
+                  <span className="text-[9px] font-extrabold uppercase tracking-wider text-slate-400">Quote / Estimate ID</span>
                   <input
                     type="text"
                     value={quoteDetails.quoteNumber}
                     onChange={(e) => handleDetailChange("quoteNumber", e.target.value)}
                     placeholder="CFPQ01"
-                    className="w-full bg-transparent font-bold text-slate-800 focus:outline-none p-0.5 border-none font-mono text-xs"
+                    className="w-full bg-transparent font-bold text-slate-800 focus:outline-none p-0.5 border-none font-mono text-xs no-print"
                   />
+                  <span className="hidden print:block font-mono font-bold text-slate-800 text-xs mt-0.5">{quoteDetails.quoteNumber || "CFPQ01"}</span>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="bg-slate-50 rounded-2xl p-3 border border-slate-100 flex flex-col justify-between print:bg-transparent print:border-b print:rounded-none">
-                  <span className="text-[9px] font-extrabold uppercase tracking-wider text-slate-400">Applicant Name</span>
+                <div className="bg-slate-50 rounded-2xl p-3 border border-slate-100 flex flex-col justify-between print:bg-transparent print:border-b print:border-slate-200 print:rounded-none print:p-1">
+                  <span className="text-[9px] font-extrabold uppercase tracking-wider text-slate-400">Applicant / Insured Name</span>
                   <input
                     type="text"
                     value={quoteDetails.applicantName}
                     onChange={(e) => handleDetailChange("applicantName", e.target.value)}
                     placeholder="Enter Applicant Name"
-                    className="w-full bg-transparent font-bold text-slate-800 focus:outline-none p-0.5 border-none"
+                    className="w-full bg-transparent font-bold text-slate-800 focus:outline-none p-0.5 border-none no-print"
                   />
+                  <span className="hidden print:block font-bold text-slate-800 text-xs mt-0.5">{quoteDetails.applicantName || "Not Specified"}</span>
                 </div>
-                <div className="bg-slate-50 rounded-2xl p-3 border border-slate-100 flex flex-col justify-between print:bg-transparent print:border-b print:rounded-none">
-                  <span className="text-[9px] font-extrabold uppercase tracking-wider text-slate-400">Quote Status</span>
+                <div className="bg-slate-50 rounded-2xl p-3 border border-slate-100 flex flex-col justify-between print:bg-transparent print:border-b print:border-slate-200 print:rounded-none print:p-1">
+                  <span className="text-[9px] font-extrabold uppercase tracking-wider text-slate-400">Estimate Status</span>
                   <input
                     type="text"
                     value={quoteDetails.status}
                     onChange={(e) => handleDetailChange("status", e.target.value)}
                     placeholder="Quote Status"
-                    className="w-full bg-transparent font-bold text-slate-800 focus:outline-none p-0.5 border-none"
+                    className="w-full bg-transparent font-bold text-slate-800 focus:outline-none p-0.5 border-none no-print"
                   />
+                  <span className="hidden print:block font-bold text-slate-800 text-xs mt-0.5">{quoteDetails.status || "Preliminary Estimate"}</span>
                 </div>
               </div>
 
-              <div className="bg-slate-50 rounded-2xl p-3 border border-slate-100 flex flex-col justify-between print:bg-transparent print:border-b print:rounded-none">
+              <div className="bg-slate-50 rounded-2xl p-3 border border-slate-100 flex flex-col justify-between print:bg-transparent print:border-b print:border-slate-200 print:rounded-none print:p-1">
                 <span className="text-[9px] font-extrabold uppercase tracking-wider text-slate-400">Risk Property Address</span>
                 <input
                   type="text"
                   value={quoteDetails.propertyAddress}
                   onChange={(e) => handleDetailChange("propertyAddress", e.target.value)}
                   placeholder="Enter Risk Property Address"
-                  className="w-full bg-transparent font-bold text-slate-800 focus:outline-none p-0.5 border-none"
+                  className="w-full bg-transparent font-bold text-slate-800 focus:outline-none p-0.5 border-none no-print"
                 />
+                <span className="hidden print:block font-bold text-slate-800 text-xs mt-0.5">{quoteDetails.propertyAddress || "Not Specified"}</span>
               </div>
             </div>
           </div>
 
           {/* Payment Plan & Financing Card (Span 2) */}
-          <div className="lg:col-span-2 bg-white border border-slate-200 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all print:border-none print:shadow-none print:p-0">
+          <div className="lg:col-span-2 bg-white border border-slate-200 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all print:border-none print:shadow-none print:p-0 print:break-inside-avoid">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-xs font-extrabold uppercase tracking-widest text-slate-400 flex items-center gap-1.5">
                 <DollarSign className="w-4 h-4 text-indigo-500" />
@@ -571,7 +572,7 @@ Future Payments: ${
           </div>
 
           {/* 4. Interactive Coverages Grid Editor (Span 3) */}
-          <div className="lg:col-span-3 bg-white border border-slate-200 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all print:border-none print:shadow-none print:p-0">
+          <div className="lg:col-span-3 bg-white border border-slate-200 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all print:border-none print:shadow-none print:p-0 print:break-inside-avoid">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
               <h3 className="text-xs font-extrabold uppercase tracking-widest text-slate-400 flex items-center gap-1.5">
                 <FileText className="w-4 h-4 text-indigo-500" />
@@ -609,13 +610,16 @@ Future Payments: ${
                     <tr key={item.id} className="hover:bg-slate-50/40 transition-colors">
                       <td className="px-4 py-2.5">
                         {item.isCustom ? (
-                          <input
-                            type="text"
-                            value={item.description}
-                            onChange={(e) => handleDescriptionChange(item.id, e.target.value)}
-                            placeholder="e.g. Other Structures"
-                            className="w-full bg-transparent font-bold text-slate-800 focus:outline-none focus:bg-slate-50 px-1 py-0.5 rounded border border-transparent hover:border-slate-200 text-xs"
-                          />
+                          <>
+                            <input
+                              type="text"
+                              value={item.description}
+                              onChange={(e) => handleDescriptionChange(item.id, e.target.value)}
+                              placeholder="e.g. Other Structures"
+                              className="w-full bg-transparent font-bold text-slate-800 focus:outline-none focus:bg-slate-50 px-1 py-0.5 rounded border border-transparent hover:border-slate-200 text-xs no-print"
+                            />
+                            <span className="hidden print:inline text-xs font-bold text-slate-800 px-1">{item.description || "Custom Coverage"}</span>
+                          </>
                         ) : (
                           <span className="text-xs font-bold text-slate-800 px-1">{item.description}</span>
                         )}
@@ -632,9 +636,27 @@ Future Payments: ${
                           type="text"
                           value={item.deductible}
                           onChange={(e) => handleDeductibleChange(item.id, e.target.value)}
+                          onBlur={(e) => {
+                            const val = e.target.value.trim();
+                            // Auto-format raw numbers or numbers with dollar signs/commas missing
+                            if (/^\d+(\.\d+)?$/.test(val)) {
+                              const num = parseFloat(val);
+                              handleDeductibleChange(item.id, num.toLocaleString("en-US", {
+                                style: "currency",
+                                currency: "USD",
+                                minimumFractionDigits: 0,
+                                maximumFractionDigits: 2,
+                              }));
+                            } else if (/^\$?\d{1,3}(,\d{3})*(\.\d+)?$/.test(val)) {
+                              if (!val.startsWith("$")) {
+                                handleDeductibleChange(item.id, "$" + val);
+                              }
+                            }
+                          }}
                           placeholder="e.g. Included"
-                          className="w-full bg-transparent text-xs font-bold text-slate-600 focus:outline-none focus:bg-slate-50 px-1 py-0.5 rounded border border-transparent hover:border-slate-200"
+                          className="w-full bg-transparent text-xs font-bold text-slate-600 focus:outline-none focus:bg-slate-50 px-1 py-0.5 rounded border border-transparent hover:border-slate-200 no-print"
                         />
+                        <span className="hidden print:inline text-xs font-bold text-slate-600 px-1">{item.deductible || "Included"}</span>
                       </td>
                       <td className="px-2 py-2.5 text-center no-print">
                         {item.isCustom ? (
@@ -670,13 +692,13 @@ Future Payments: ${
           </div>
 
           {/* 5. Endorsements Checkbox Card (Span 1) */}
-          <div className="lg:col-span-1 bg-white border border-slate-200 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all print:border-none print:shadow-none print:p-0">
+          <div className="lg:col-span-1 bg-white border border-slate-200 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all print:border-none print:shadow-none print:p-0 print:break-inside-avoid">
             <h3 className="text-xs font-extrabold uppercase tracking-widest text-slate-400 flex items-center gap-1.5 mb-4">
               <ShieldCheck className="w-4 h-4 text-indigo-500" />
               Policy Endorsements
             </h3>
             
-            <div className="space-y-3">
+            <div className="space-y-3 no-print">
               {endorsements.map((item) => (
                 <label
                   key={item.id}
@@ -702,10 +724,26 @@ Future Payments: ${
                 </label>
               ))}
             </div>
+
+            {/* Print-only version of Endorsements: Clean, formal checkmarks/badges */}
+            <div className="hidden print:block space-y-2 text-xs">
+              {endorsements.map((item) => (
+                <div key={item.id} className="flex justify-between items-center py-1.5 border-b border-slate-100">
+                  <span className="font-semibold text-slate-700">{item.name}</span>
+                  <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${
+                    item.checked 
+                      ? "bg-emerald-50 text-emerald-700 border border-emerald-200" 
+                      : "bg-slate-50 text-slate-400 border border-slate-200"
+                  }`}>
+                    {item.checked ? "✓ Included" : "✕ Not Selected"}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
 
-          {/* 6. Legal Notices & Fraud Warnings (Span 3) */}
-          <div className="lg:col-span-3 bg-red-50/40 border border-red-200/50 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all print:bg-white print:border-2 print:border-red-200 print:p-5">
+          {/* 6. Legal Notices & Fraud Warnings (Span 4) */}
+          <div className="lg:col-span-4 bg-red-50/40 border border-red-200/50 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all print:bg-white print:border print:border-red-200 print:p-5 print:break-inside-avoid">
             <h4 className="text-red-700 font-extrabold text-xs tracking-wider uppercase flex items-center gap-1.5 mb-3">
               <AlertTriangle className="w-4 h-4 text-red-600" />
               ⚠️ Legal Notice & Disclosures
@@ -717,55 +755,6 @@ Future Payments: ${
               <p>
                 <strong>INDEPENDENT ENTITY STATUS:</strong> The broker presenting this summary acts as an independent insurance broker/entity and maintains an entirely separate status from the California FAIR Plan Association. We do not directly represent, command, or hold binding authorization on behalf of the California FAIR Plan.
               </p>
-            </div>
-          </div>
-
-          {/* 7. Diagnostic Indicators Bento Card (Span 1) */}
-          <div className="lg:col-span-1 bg-white border border-slate-200 rounded-3xl p-6 flex flex-col justify-between shadow-sm hover:shadow-md transition-all print:hidden">
-            <div className="space-y-4">
-              <h3 className="text-xs font-extrabold uppercase tracking-widest text-slate-400">
-                Performance Check
-              </h3>
-              <div className="space-y-3">
-                <div className="flex items-center gap-3">
-                  <div className="h-9 w-9 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-600 border border-emerald-100">
-                    <Cpu className="h-4.5 w-4.5" />
-                  </div>
-                  <div>
-                    <p className="text-[9px] text-slate-400 uppercase font-bold">Summation</p>
-                    <p className="text-xs font-bold text-slate-900 font-mono">O(n) Engine</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="h-9 w-9 bg-slate-50 rounded-full flex items-center justify-center text-slate-600 border border-slate-100">
-                    <Activity className="h-4.5 w-4.5" />
-                  </div>
-                  <div>
-                    <p className="text-[9px] text-slate-400 uppercase font-bold">Execution latency</p>
-                    <p className="text-xs font-bold text-slate-900 font-mono">0.4 ms</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="pt-4 border-t border-slate-100 text-[10px] text-slate-400 italic">
-              Reactive State Observers fully decoupled.
-            </div>
-          </div>
-
-          {/* 8. Master Coder Status Bar (Span 4) */}
-          <div className="lg:col-span-4 bg-[#0F172A] rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between text-white border border-slate-800 shadow-xl gap-3 print:hidden">
-            <div className="flex flex-wrap gap-x-6 gap-y-2 items-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-              <div className="flex gap-2 items-center">
-                <div className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></div>
-                <span>Engine Status: Optimized</span>
-              </div>
-              <div>Architecture: Decoupled Observer</div>
-              <div>Memory Leak Check: PASS</div>
-            </div>
-            <div className="flex items-center gap-4 text-xs font-medium text-slate-300 bg-slate-800/50 px-4 py-1.5 rounded-xl border border-slate-700/30">
-              <span className="font-mono text-[10px]">master_admin_v4_active</span>
-              <div className="w-px h-3 bg-slate-700"></div>
-              <span className="font-mono text-[10px] text-indigo-400">{currentTime || "12:00:00 PM"}</span>
             </div>
           </div>
 
