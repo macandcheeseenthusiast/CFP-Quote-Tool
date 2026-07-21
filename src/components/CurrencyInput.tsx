@@ -10,6 +10,37 @@ interface CurrencyInputProps {
   variant?: "standard" | "hero";
 }
 
+export const formatLiveCurrency = (val: string | number): { formatted: string; numValue: number } => {
+  if (typeof val === "number") {
+    if (val === 0) return { formatted: "", numValue: 0 };
+    const formatted = val.toLocaleString("en-US", {
+      style: "currency",
+      currency: "USD",
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2,
+    });
+    return { formatted, numValue: val };
+  }
+
+  const clean = val.replace(/[^0-9.]/g, "");
+  if (!clean) return { formatted: "", numValue: 0 };
+
+  const parts = clean.split(".");
+  const intPart = parts[0];
+  const decPart = parts.length > 1 ? parts.slice(1).join("").slice(0, 2) : null;
+
+  const intNum = parseInt(intPart || "0", 10);
+  const formattedInt = isNaN(intNum) ? "0" : intNum.toLocaleString("en-US");
+
+  let formatted = `$${formattedInt}`;
+  if (decPart !== null) {
+    formatted += `.${decPart}`;
+  }
+
+  const parsedNum = parseFloat(decPart !== null ? `${intNum}.${decPart}` : `${intNum}`);
+  return { formatted, numValue: isNaN(parsedNum) ? 0 : parsedNum };
+};
+
 export const CurrencyInput: React.FC<CurrencyInputProps> = ({
   id,
   value,
@@ -22,7 +53,6 @@ export const CurrencyInput: React.FC<CurrencyInputProps> = ({
   const [isFocused, setIsFocused] = useState(false);
   const [inputValue, setInputValue] = useState("");
 
-  // Format number to currency string: e.g. 150000 -> "$150,000" or "$150,000.00"
   const formatValue = (num: number): string => {
     if (num === 0) return "";
     return num.toLocaleString("en-US", {
@@ -41,43 +71,29 @@ export const CurrencyInput: React.FC<CurrencyInputProps> = ({
 
   const handleFocus = () => {
     setIsFocused(true);
-    // Show raw number on focus for easier editing: e.g. 150000
-    setInputValue(value === 0 ? "" : value.toString());
+    if (value === 0) {
+      setInputValue("");
+    } else {
+      setInputValue(formatValue(value));
+    }
   };
 
   const handleBlur = () => {
     setIsFocused(false);
-    // Clean up input value and update
-    const parsed = parseFloat(inputValue.replace(/[^0-9.]/g, ""));
-    const finalVal = isNaN(parsed) ? 0 : parsed;
-    onChange(finalVal);
-    setInputValue(formatValue(finalVal));
+    const { formatted, numValue } = formatLiveCurrency(inputValue);
+    onChange(numValue);
+    setInputValue(formatted || (value > 0 ? formatValue(value) : ""));
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const rawValue = e.target.value;
-    // Allow digits and one decimal point only
-    const cleanValue = rawValue.replace(/[^0-9.]/g, "");
-    
-    // Ensure only one decimal point
-    const parts = cleanValue.split(".");
-    const formatted = parts.length > 2 
-      ? `${parts[0]}.${parts.slice(1).join("")}` 
-      : cleanValue;
-
+    const { formatted, numValue } = formatLiveCurrency(rawValue);
     setInputValue(formatted);
-
-    // Call onChange with parsed value in real-time if valid
-    const parsed = parseFloat(formatted);
-    if (!isNaN(parsed)) {
-      onChange(parsed);
-    } else {
-      onChange(0);
-    }
+    onChange(numValue);
   };
 
   const inputClass = variant === "hero"
-    ? `w-32 bg-transparent text-indigo-300 print:text-indigo-950 font-mono font-bold text-lg border border-transparent hover:border-slate-700/50 focus:border-indigo-400 focus:outline-none px-1 py-0.5 rounded transition-all text-center ${className}`
+    ? `w-36 bg-transparent text-indigo-300 print:text-indigo-950 font-mono font-bold text-lg border border-transparent hover:border-slate-700/50 focus:border-indigo-400 focus:outline-none px-1 py-0.5 rounded transition-all text-center ${className}`
     : `w-full bg-transparent px-2 py-1 rounded transition-all duration-150 focus:outline-none focus:bg-white focus:ring-1 focus:ring-blue-500 border border-transparent hover:border-gray-300 md:text-sm ${
         bold ? "font-bold text-gray-900" : "text-gray-700"
       } ${className}`;
